@@ -7,10 +7,20 @@ import base64
 from io import StringIO
 from datetime import datetime
 import json
-from datafunctions.data_processing import load_data, format_and_apply_title_case, clean_and_tag_data, simplify_data_format, combine_multiple_files, dataframe_to_csv
+from datafunctions.data_processing import preserve_phone_format, load_data, format_and_apply_title_case, clean_and_tag_data, simplify_data_format, combine_multiple_files, dataframe_to_csv
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, 'assets/styles.css'], suppress_callback_exceptions=True)
 app.title = "CRM Audience Data Processing App"
+
+# New component for the toggle button
+sidebar_toggle = html.Div([
+    html.Button("≡", id="sidebar-toggle", className="toggle-btn"),
+    dbc.Tooltip(
+        id="sidebar-tooltip",  # Ensure this ID matches the callback
+        target="sidebar-toggle",
+        placement="right"
+    )
+], className="sidebar-toggle-container")
 
 app.layout = html.Div([
     dbc.Container([
@@ -23,89 +33,91 @@ app.layout = html.Div([
         dbc.Row([
             # Sidebar with Instructions
             dbc.Col([
-                html.H5("Instructions", className="text-center"),
-                html.A("Click for Help", id="toggle-instructions", href="#", className="link-button"),
+                sidebar_toggle,
                 html.Div([
-                    html.Ul([
-                        html.Li("1. Select an operation from the dropdown."),
-                        html.Li("2. Upload a CSV or Excel file using the button below."),
-                        html.Li("3. Choose columns and filter values to refine data."),
-                        html.Li("4. Add or delete custom tags if desired."),
-                        html.Li("5. Download the processed or filtered data."),
-                    ], className="instructions-list", style={"text-align": "left"})
-                ], id="instructions-div", style={"display": "none"}),
+                    html.H5("Menu", className="text-center"),
+                    html.A("Click for Help", id="toggle-instructions", href="#", className="link-button"),
+                    html.Div([
+                        html.Ul([
+                            html.Li("1. Select an operation from the dropdown."),
+                            html.Li("2. Upload a CSV or Excel file using the button below."),
+                            html.Li("3. Choose columns and filter values to refine data."),
+                            html.Li("4. Add or delete custom tags if desired."),
+                            html.Li("5. Download the processed or filtered data."),
+                        ], className="instructions-list", style={"text-align": "left"})
+                    ], id="instructions-div", style={"display": "none"}),
 
-                html.Hr(),
-                # Dropdown for Selecting Operation Type
-                dcc.Dropdown(
-                    id='operation-select',
-                    options=[
-                        {'label': 'GoHighLevel Data Formatter', 'value': 'clean'},
-                        {'label': 'Simplif Data Formatter', 'value': 'simplify'},
-                        {'label': 'Combine Data', 'value': 'combine'}
-                    ],
-                    placeholder="Select Operation",
-                    className="mb-4"
-                ),
-                # File Upload
-                dcc.Upload(
-                    id='upload-data',
-                    children=dbc.Button(
-                        "Upload File",
-                        color="primary",
-                        className="upload-btn",
-                        style={"width": "100%", "margin-bottom": "10px"}
-                    ),
-                    style={
-                        'width': '100%',
-                        'height': '60px',
-                        'lineHeight': '60px',
-                        'borderWidth': '1px',
-                        'borderStyle': 'dashed',
-                        'borderRadius': '5px',
-                        'textAlign': 'center',
-                        'margin': '10px',
-                        'backgroundColor': '#f8f9fa'
-                    },
-                    multiple=True
-                ),
-                # Tag Management
-                html.Div([
-                    html.H5("Manage Tags"),
-                    dcc.Input(
-                        id='tag-input',
-                        type='text',
-                        placeholder='Enter tag(s), comma-separated',
-                        style={'width': '100%', 'padding': '10px', 'margin': '10px 0'}
-                    ),
-                    html.Small("Note: Deleting tags will remove them from all rows. Please review carefully before deleting.", style={"color": "red", "margin-bottom": "10px", "display": "block"}),
-                    dbc.Button("Add Tag(s)", id='add-tag-button', n_clicks=0, className="btn btn-primary mt-2 mr-2 tag-button"),
-                    dbc.Button("Delete Tag(s)", id='delete-tag-button', n_clicks=0, className="btn btn-danger mt-2 tag-button")
-                ], style={"marginTop": "20px"}),
-                # Filtering Components
-                html.Div([
-                    html.H5("Filter Data"),
+                    html.Hr(),
+                    # Dropdown for Selecting Operation Type
                     dcc.Dropdown(
-                        id='column-filter-select',
-                        placeholder="Select column to filter",
+                        id='operation-select',
+                        options=[
+                            {'label': 'GoHighLevel Data Formatter', 'value': 'clean'},
+                            {'label': 'Simplif Data Formatter', 'value': 'simplify'},
+                            {'label': 'Combine Data', 'value': 'combine'}
+                        ],
+                        placeholder="Select Operation",
                         className="mb-4"
                     ),
-                    dcc.Input(
-                        id='filter-value-input',
-                        type='text',
-                        placeholder='Enter filter values (comma-separated)',
-                        style={'width': '100%', 'padding': '10px', 'margin': '10px 0'}
+                    # File Upload
+                    dcc.Upload(
+                        id='upload-data',
+                        children=dbc.Button(
+                            "Upload File",
+                            color="primary",
+                            className="upload-btn",
+                            style={"width": "100%", "margin-bottom": "10px"}
+                        ),
+                        style={
+                            'width': '100%',
+                            'height': '60px',
+                            'lineHeight': '60px',
+                            'borderWidth': '1px',
+                            'borderStyle': 'dashed',
+                            'borderRadius': '5px',
+                            'textAlign': 'center',
+                            'margin': '10px',
+                            'backgroundColor': '#f8f9fa'
+                        },
+                        multiple=True
                     ),
-                    dbc.Button("Apply Filter", id='filter-button', n_clicks=0, className="btn btn-primary mt-2")
-                ], id='filter-section', style={"marginTop": "20px"}),
-                # Reset Button
-                dbc.Button("Reset All", id='reset-button', color="secondary", className="mt-4 mb-4 w-100"),
-                # Download Button
-                html.Div(id='download-div'),
-                # Feedback Message
-                dbc.Alert(id='feedback-message', is_open=False, duration=4000, style={"marginTop": "20px"}),
-                
-            ], width=3, className="sidebar", style={"backgroundColor": "#f0f8ff", "padding": "20px", "borderRadius": "8px"}),
+                    # Tag Management
+                    html.Div([
+                        html.H5("Manage Tags"),
+                        dcc.Input(
+                            id='tag-input',
+                            type='text',
+                            placeholder='Enter tag(s), comma-separated',
+                            style={'width': '100%', 'padding': '10px', 'margin': '10px 0'}
+                        ),
+                        html.Small("Note: Deleting tags will remove them from all rows. Please review carefully before deleting.", style={"color": "red", "margin-bottom": "10px", "display": "block"}),
+                        dbc.Button("Add Tag(s)", id='add-tag-button', n_clicks=0, className="btn btn-primary mt-2 mr-2 tag-button"),
+                        dbc.Button("Delete Tag(s)", id='delete-tag-button', n_clicks=0, className="btn btn-danger mt-2 tag-button")
+                    ], style={"marginTop": "20px"}),
+                    # Filtering Components
+                    html.Div([
+                        html.H5("Filter Data"),
+                        dcc.Dropdown(
+                            id='column-filter-select',
+                            placeholder="Select column to filter",
+                            className="mb-4"
+                        ),
+                        dcc.Input(
+                            id='filter-value-input',
+                            type='text',
+                            placeholder='Enter filter values (comma-separated)',
+                            style={'width': '100%', 'padding': '10px', 'margin': '10px 0'}
+                        ),
+                        dbc.Button("Apply Filter", id='filter-button', n_clicks=0, className="btn btn-primary mt-2")
+                    ], id='filter-section', style={"marginTop": "20px"}),
+                    # Reset Button
+                    dbc.Button("Reset All", id='reset-button', color="secondary", className="mt-4 mb-4 w-100"),
+                    # Download Button
+                    html.Div(id='download-div'),
+                    # Feedback Message
+                    dbc.Alert(id='feedback-message', is_open=False, duration=4000, style={"marginTop": "20px"}),
+                ], id="sidebar-content", className="sidebar-content")
+            ], id="sidebar", className="sidebar", style={"backgroundColor": "#f0f8ff", "padding": "20px", "borderRadius": "8px"}),
 
             # Main Content Area for Processed Data Display
             dbc.Col([
@@ -113,10 +125,10 @@ app.layout = html.Div([
                 html.Div(id='data-table-div'),
                 # Display the structure of the data
                 html.Div(id='data-structure', style={"color": "#007bff", "font-weight": "bold", "margin-top": "40px"}),
-            ], width=9),
+            ], id="main-content", className="main-content", width=9),
             
             dcc.Loading([html.Div(id="loading-demo")]),
-        ]),
+        ], className="flex-container"),
         # Store component to share data between callbacks
         dcc.Store(id='processed-data'),
         
@@ -129,7 +141,23 @@ app.layout = html.Div([
     ], fluid=True, className="container-fluid")  # Use container-fluid to span full width
 ])
 
-
+# Add this callback to handle the sidebar toggle
+@app.callback(
+    [Output("sidebar", "className"),
+     Output("main-content", "className"),
+     Output("sidebar-toggle", "children"),
+     Output("sidebar-tooltip", "children")],  # Tooltip text update
+    [Input("sidebar-toggle", "n_clicks")],
+    [State("sidebar", "className")]
+)
+def toggle_sidebar(n_clicks, sidebar_class):
+    if n_clicks is None:
+        raise PreventUpdate
+    
+    if "collapsed" in sidebar_class:
+        return "sidebar", "main-content", "≡", "Hide sidebar"  # Show the sidebar
+    else:
+        return "sidebar collapsed", "main-content expanded", "≫", "Show sidebar"  # Hide the sidebar
 @app.callback(
     Output('instructions-div', 'style'),
     Input('toggle-instructions', 'n_clicks'),
@@ -251,28 +279,30 @@ def update_output(contents, filter_clicks, add_tag_clicks, delete_tag_clicks, re
             if json_data and selected_column and filter_values:
                 df = pd.read_json(StringIO(json_data), orient='split')
                 values = [v.strip() for v in filter_values.split(',')]
-                
-                # Check if the selected column exists in the DataFrame
+
+                # Preserve phone number format during filtering
+                df = preserve_phone_format(df)
+
                 if selected_column not in df.columns:
                     return [dash.no_update] * 6 + [f"Selected column '{selected_column}' does not exist in the data.", True, "warning"]
-                
-                # Check which values are present in the data
+
                 present_values = [v for v in values if v in df[selected_column].values]
                 missing_values = [v for v in values if v not in df[selected_column].values]
-                
+
                 if not present_values:
                     return [dash.no_update] * 6 + [f"None of the provided values exist in the '{selected_column}' column.", True, "warning"]
-                
+
                 filtered_df = df[df[selected_column].isin(present_values)]
+                filtered_df = preserve_phone_format(filtered_df)  # Ensure phone format remains during filtering
                 filtered_data = filtered_df.to_json(date_format='iso', orient='split')
                 filtered_structure = f"Filtered Data Structure: {len(filtered_df)} rows and {len(filtered_df.columns)} columns"
 
                 data_table = create_data_table(filtered_df)
-                
+
                 feedback_message = f"Data filtered successfully. {len(filtered_df)} rows match the filter criteria."
                 if missing_values:
                     feedback_message += f"\nNote: The following values were not found in the '{selected_column}' column: {', '.join(missing_values)}"
-                
+
                 return data_table, filtered_structure, filtered_data, dash.no_update, dash.no_update, None, feedback_message, True, "success"
             else:
                 return [dash.no_update] * 6 + ["Please select a column and enter filter values before applying the filter.", True, "warning"]
@@ -281,7 +311,10 @@ def update_output(contents, filter_clicks, add_tag_clicks, delete_tag_clicks, re
             if json_data:
                 df = pd.read_json(StringIO(json_data), orient='split')
                 tags = [tag.strip() for tag in tag_input.split(',') if tag.strip()]
-                
+
+                # Preserve phone number format before tag operations
+                df = preserve_phone_format(df)
+
                 if triggered_id == 'add-tag-button':
                     new_tags = []
                     existing_tags = []
@@ -290,7 +323,7 @@ def update_output(contents, filter_clicks, add_tag_clicks, delete_tag_clicks, re
                             new_tags.append(tag)
                         else:
                             existing_tags.append(tag)
-                    
+
                     if new_tags:
                         df['Tag'] = df['Tag'].apply(lambda x: ', '.join(set((x.split(', ') if pd.notna(x) else []) + new_tags)))
                         message = f"New tag(s) added successfully: {', '.join(new_tags)}"
@@ -299,7 +332,7 @@ def update_output(contents, filter_clicks, add_tag_clicks, delete_tag_clicks, re
                     else:
                         message = f"No new tags added. All tags already exist: {', '.join(existing_tags)}"
                     color = "success" if new_tags else "warning"
-                
+
                 else:  # delete-tag-button
                     deleted_tags = []
                     non_existent_tags = []
@@ -308,7 +341,7 @@ def update_output(contents, filter_clicks, add_tag_clicks, delete_tag_clicks, re
                             deleted_tags.append(tag)
                         else:
                             non_existent_tags.append(tag)
-                    
+
                     if deleted_tags:
                         df['Tag'] = df['Tag'].apply(lambda x: ', '.join([t for t in (x.split(', ') if pd.notna(x) else []) if t not in deleted_tags]))
                         message = f"Tag(s) deleted successfully: {', '.join(deleted_tags)}"
@@ -317,14 +350,16 @@ def update_output(contents, filter_clicks, add_tag_clicks, delete_tag_clicks, re
                     else:
                         message = f"No tags deleted. All specified tags do not exist: {', '.join(non_existent_tags)}"
                     color = "success" if deleted_tags else "warning"
-            
+
+                # Preserve phone number format after tag operations
+                df = preserve_phone_format(df)
                 processed_data = df.to_json(date_format='iso', orient='split')
                 initial_structure = f"Data Structure: {len(df)} rows and {len(df.columns)} columns"
 
                 data_table = create_data_table(df)
                 column_options = [{'label': col, 'value': col} for col in df.columns]
                 download_button = create_download_button()
-                
+
                 return data_table, initial_structure, processed_data, column_options, download_button, None, message, True, color
 
         return [dash.no_update] * 9
@@ -362,8 +397,9 @@ def create_data_table(df):
             }
         ]
     )
-
+ #   
 def create_download_button():
+    # Create a download button for processed data
     return html.Div([
         dbc.Button(
             'Download Processed Data',
@@ -381,6 +417,7 @@ def create_download_button():
     prevent_initial_call=True,
 )
 def download_csv(n_clicks, data):
+    # Callback to handle the download of processed data as a CSV file
     if n_clicks is None:
         return dash.no_update
     df = pd.read_json(StringIO(data), orient='split')
@@ -396,6 +433,7 @@ def download_csv(n_clicks, data):
     prevent_initial_call=True
 )
 def reset_all(n_clicks):
+    # Callback to reset all input fields
     if n_clicks is None:
         return dash.no_update
     return [None, None, None, None, None]
