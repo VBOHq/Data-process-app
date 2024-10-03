@@ -1,0 +1,234 @@
+/* App title styling */
+.app-title {
+    color: #0af248;
+    font-weight: bold;
+    font-size: 2.5em;
+}
+
+/* Basic layout */
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 2px;
+    display: flex;
+    flex-direction: column;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #e8f5e9;
+}
+
+.container-fluid {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    padding-left: 10px;
+    padding-right: 5px;
+    box-sizing: border-box;
+}
+
+/* Header and footer */
+.sticky-header {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.footer {
+    background-color: #01101c;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Sidebar styles */
+.sidebar {
+    background-color: #f0f8ff;
+    padding: 10px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    width: 25%;
+    position: relative;
+    overflow-y: auto;
+    max-height: calc(100vh - 60px); /* Adjust based on your header height */
+}
+
+.sidebar.collapsed {
+    width: 60px;
+    overflow: hidden;
+}
+
+.sidebar-content {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar.collapsed .sidebar-content {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Toggle button */
+.toggle-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #1dce84;
+    z-index: 1000;
+}
+/* Tooltip styling */
+#sidebar-tooltip {
+    font-size: 14px;
+    color: #ffffff; /* White text for readability */
+    background-color: #333; /* Dark background for contrast */
+    border-radius: 5px;
+    padding: 5px 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    max-width: 200px; /* Maximum width to keep text readable */
+    text-align: center; /* Center-align text */
+    transition: opacity 0.3s ease-in-out;
+}
+
+#sidebar-tooltip::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    margin-top: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent transparent #333; /* Arrow pointing to the left */
+}
+
+
+/* Main content area */
+.main-content {
+    width: 75%;
+    transition: all 0.3s ease;
+}
+
+.main-content.expanded {
+    width: calc(100% - 60px);
+}
+
+/* Flex container for sidebar and main content */
+.flex-container {
+    display: flex;
+    transition: all 0.3s ease;
+}
+
+/* Instructions list */
+.instructions-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.instructions-list li {
+    margin-bottom: 10px;
+}
+
+/* Buttons and links */
+.upload-btn {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.link-button {
+    color: #0ac558d8;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.link-button:hover {
+    text-decoration: underline;
+}
+
+.tag-button {
+    margin-right: 10px;
+}
+
+/* Data table styles */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 18px;
+    text-align: left;
+}
+
+.data-table th, .data-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+}
+
+.data-table thead {
+    background-color: #009879;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.data-table tbody tr:nth-child(even) {
+    background-color: #f3f3f3;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100% !important;
+    }
+    
+    .sidebar.collapsed {
+        width: 100%;
+        height: 60px;
+    }
+    
+    .main-content {
+        width: 100%;
+    }
+
+    .main-content.expanded {
+        width: 100%;
+    }
+
+    .toggle-btn {
+        top: 5px;
+        right: 5px;
+    }
+    
+    .flex-container {
+        flex-direction: column;
+    }
+}
+
+.btn-custom, .upload-btn{
+    background-color: #4fdf4f; /* Light green */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover effect */
+.btn-custom:hover, .upload-btn:hover {
+    background-color: #006400; /* Deep green */
+}
+

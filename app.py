@@ -7,7 +7,7 @@ import base64
 from io import StringIO
 from datetime import datetime
 import json
-from datafunctions.data_processing import preserve_phone_format, load_data, format_and_apply_title_case, clean_and_tag_data, simplify_data_format, combine_multiple_files, dataframe_to_csv
+from datafunctions.data_processing import preserve_phone_format, clean_and_tag_data, simplify_data_format, combine_multiple_files
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, 'assets/styles.css'], suppress_callback_exceptions=True)
 app.title = "CRM Audience Data Processing App"
@@ -91,7 +91,7 @@ app.layout = html.Div([
                             style={'width': '100%', 'padding': '10px', 'margin': '10px 0'}
                         ),
                         html.Small("Note: Deleting tags will remove them from all rows. Please review carefully before deleting.", style={"color": "red", "margin-bottom": "10px", "display": "block"}),
-                        dbc.Button("Add Tag(s)", id='add-tag-button', n_clicks=0, className="btn btn-primary mt-2 mr-2 tag-button"),
+                        dbc.Button("Add Tag(s)", id='add-tag-button', n_clicks=0, className="btn btn-custom mt-2"),
                         dbc.Button("Delete Tag(s)", id='delete-tag-button', n_clicks=0, className="btn btn-danger mt-2 tag-button")
                     ], style={"marginTop": "20px"}),
                     # Filtering Components
@@ -108,10 +108,10 @@ app.layout = html.Div([
                             placeholder='Enter filter values (comma-separated)',
                             style={'width': '100%', 'padding': '10px', 'margin': '10px 0'}
                         ),
-                        dbc.Button("Apply Filter", id='filter-button', n_clicks=0, className="btn btn-primary mt-2")
+                        dbc.Button("Apply Filter", id='filter-button', n_clicks=0, className="btn btn-custom mt-2")
                     ], id='filter-section', style={"marginTop": "20px"}),
                     # Reset Button
-                    dbc.Button("Reset All", id='reset-button', color="secondary", className="mt-4 mb-4 w-100"),
+                    dbc.Button("Reset All", id='reset-button', color="secondary", className="btn btn-custom mt-2"),
                     # Download Button
                     html.Div(id='download-div'),
                     # Feedback Message
@@ -121,7 +121,7 @@ app.layout = html.Div([
 
             # Main Content Area for Processed Data Display
             dbc.Col([
-                html.H5("Processed Data", className="text-center", style={"color": "#007bff", "font-weight": "bold", "margin-top": "40px"}),
+                #html.H5("Processed Data", className="text-center", style={"color": "#007bff", "font-weight": "bold", "margin-top": "40px"}),
                 html.Div(id='data-table-div'),
                 # Display the structure of the data
                 html.Div(id='data-structure', style={"color": "#007bff", "font-weight": "bold", "margin-top": "40px"}),
