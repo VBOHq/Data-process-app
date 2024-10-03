@@ -121,7 +121,7 @@ app.layout = html.Div([
 
             # Main Content Area for Processed Data Display
             dbc.Col([
-                #html.H5("Processed Data", className="text-center", style={"color": "#007bff", "font-weight": "bold", "margin-top": "40px"}),
+                
                 html.Div(id='data-table-div'),
                 # Display the structure of the data
                 html.Div(id='data-structure', style={"color": "#007bff", "font-weight": "bold", "margin-top": "40px"}),
