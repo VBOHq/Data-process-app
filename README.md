@@ -43,8 +43,36 @@ The CRM Audience Data Processing App is designed to streamline and enhance the m
 - **Custom Functions**: Includes functions for preserving phone formats, loading data, and more to ensure data integrity and consistency.
 
 ## Getting Started
-To run the application, ensure you have Python installed along with the necessary packages listed in `requirements.txt`. Then, execute the following command in your terminal:
+To run the application, ensure you have Python installed along on your system and follow these steps:
+
+**step 1:** Clone the repository
 
 ```bash
-python app.py
+git clone https://github.com/trafficconver/Data-process-app.git
+```
+
+**step 2:** Navigate to the project directory**
+
+```bash
+cd Data-process-app
+```
+
+**step 3:** Create a virtual environment and install dependencies
+
+```bash
+#create virtual environment
+python -m venv venv 
+
+#activate virtual environment
+source venv/bin/activate # On MacOS or Linux
+venv\Scripts\activate # On Windows
+
+#install dependencies
+pip install -r requirements.txt 
+```
+
+**step 4:** Run the application
+
+```bash
+python app.py #to run the app
 ```
