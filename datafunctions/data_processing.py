@@ -102,8 +102,9 @@ import logging
 
 def clean_and_tag_data(df, file_name):
     """
-    Processes a DataFrame by tagging rows based on conditions and updating 'Mobile Phone' values based on 'DNC' status.
+    Processes a DataFrame by tagging rows based on conditions and updating 'Mobile Phone' values.
     Adds a 'Contact ID' column and checks the file name for specific tags.
+    Ensures only valid phone numbers (10 digits or more) are retained.
 
     Args:
         df (pd.DataFrame): The DataFrame to be processed.
@@ -161,15 +162,29 @@ def clean_and_tag_data(df, file_name):
             if pd.notna(row['PERSONAL_EMAIL']) and row['PERSONAL_EMAIL'] != '-':
                 tags.append('social')
 
-            # SMS tagging and handling DND
+            # SMS tagging and handling DNC
             if row['DNC'] == 'Y':
                 df.loc[index, 'MOBILE_PHONE'] = pd.NA
             elif pd.notna(row['MOBILE_PHONE']) and row['MOBILE_PHONE'] != '-':
                 phone_match = phone_pattern.search(str(row['MOBILE_PHONE']))
                 if phone_match:
-                    standard_phone = re.sub(r'[^\d]+', '', phone_match.group())
-                    df.loc[index, 'MOBILE_PHONE'] = standard_phone
-                    tags.append('sms')
+                    # Extract only digits from the phone number
+                    digits_only = re.sub(r'[^\d]', '', phone_match.group())
+                    
+                    # Check if the number has at least 10 digits
+                    if len(digits_only) >= 10:
+                        # If the number starts with '1' and has 11 digits, remove the '1'
+                        if len(digits_only) == 11 and digits_only.startswith('1'):
+                            digits_only = digits_only[1:]
+                        # Keep only the first 10 digits if there are more
+                        standard_phone = digits_only[:10]
+                        df.loc[index, 'MOBILE_PHONE'] = standard_phone
+                        tags.append('sms')
+                    else:
+                        # Set phone numbers with fewer than 10 digits to NA
+                        df.loc[index, 'MOBILE_PHONE'] = pd.NA
+                else:
+                    df.loc[index, 'MOBILE_PHONE'] = pd.NA
 
             # Update the 'Tag' column
             df.loc[index, 'Tag'] = ', '.join(tags)
