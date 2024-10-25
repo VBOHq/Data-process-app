@@ -404,8 +404,8 @@ def create_download_button():
         dbc.Button(
             'Download Processed Data',
             id='download-button',
-            color="success",
-            className="mt-2"
+            
+            className=" btn btn-custom mt-2"
         ),
         dcc.Download(id="download-dataframe-csv"),
     ])

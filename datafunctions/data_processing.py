@@ -3,9 +3,6 @@ import re
 import base64
 import io
 import logging
-import phonenumbers
-from phonenumbers import NumberParseException
-
 
 
 ##=========Load data from a CSV or Excel file ==================================
