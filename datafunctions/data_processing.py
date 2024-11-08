@@ -97,6 +97,13 @@ import pandas as pd
 import re
 import logging
 
+import re
+import logging
+import pandas as pd
+from typing import Optional, Dict, List
+
+
+
 def clean_and_tag_data(df, file_name):
     """
     Processes a DataFrame by tagging rows based on conditions and updating 'Mobile Phone' values.
@@ -191,7 +198,7 @@ def clean_and_tag_data(df, file_name):
 
         # Define columns to be included in the final output
         selected_columns = [
-            'Contact ID', 'FIRST_NAME', 'LAST_NAME', 'BUSINESS_EMAIL', 'MOBILE_PHONE',
+            'FIRST_NAME', 'LAST_NAME', 'BUSINESS_EMAIL', 'MOBILE_PHONE',
             'PERSONAL_ADDRESS', 'PERSONAL_CITY', 'PERSONAL_STATE', 'PERSONAL_ZIP',
             'PERSONAL_EMAIL', 'Tag'
         ]
@@ -207,6 +214,7 @@ def clean_and_tag_data(df, file_name):
         df_formatted = preserve_phone_format(df_formatted, column_name='Mobile Phone')
 
         return df_formatted
+
 
     except Exception as e:
         logging.error(f"Error processing data: {str(e)}")

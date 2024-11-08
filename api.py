@@ -198,6 +198,7 @@ def load_contacts_in_batches(contacts_list, batch_size=100, pause_duration=10):
 @app.route('/upload', methods=['POST'])
 def upload_file():
     global processed_data_store
+
     if 'file' not in request.files:
         logging.error("No file provided in request.")
         return jsonify({"error": "No file provided"}), 400
@@ -214,6 +215,10 @@ def upload_file():
         if processed_df is not None:
             logging.info(f"Processed file '{file.filename}' successfully.")
             processed_data_store = processed_df.to_dict(orient='records')  # Store the cleaned data
+            
+            # Log the number of records stored
+            logging.info(f"Stored {len(processed_data_store)} records in processed_data_store.")
+            
             return jsonify({"message": "File processed successfully", "data": processed_data_store}), 200
         else:
             logging.error(f"Data processing failed for file '{file.filename}': {error_msg}")
